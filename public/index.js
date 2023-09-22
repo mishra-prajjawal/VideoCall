@@ -2,7 +2,8 @@ const socket = io('/');
 const peer = new Peer();
 let myVideoStream;
 let myId;
-var videoGrid = document.getElementById('videoDiv')
+var incoming= document.querySelector('.incoming');
+var outoging = document.querySelector('.outgoing');
 var myvideo = document.createElement('video');
 myvideo.muted = true;
 const peerConnections = {}
@@ -11,12 +12,13 @@ navigator.mediaDevices.getUserMedia({
   audio:true
 }).then((stream)=>{
   myVideoStream = stream;
-  addVideo(myvideo , stream);
+  addVideomyvideo(myvideo , stream);
   peer.on('call' , call=>{
     call.answer(stream);
       const vid = document.createElement('video');
     call.on('stream' , userStream=>{
-      addVideo(vid , userStream);
+
+      addVideoincoming(vid , userStream);
     })
     call.on('error' , (err)=>{
       alert(err)
@@ -39,13 +41,14 @@ peer.on('error' , (err)=>{
 });
 socket.on('userJoined' , id=>{
   console.log("new user joined")
+  alert("new user joined")
   const call  = peer.call(id , myVideoStream);
   const vid = document.createElement('video');
   call.on('error' , (err)=>{
     alert(err);
   })
   call.on('stream' , userStream=>{
-    addVideo(vid , userStream);
+    addVideoincoming(vid , userStream);
   })
   call.on('close' , ()=>{
     vid.remove();
@@ -58,10 +61,17 @@ socket.on('userDisconnect' , id=>{
     peerConnections[id].close();
   }
 })
-function addVideo(video , stream){
+function addVideomyvideo(video , stream){
   video.srcObject = stream;
   video.addEventListener('loadedmetadata', () => {
     video.play()
   })
-  videoGrid.append(video);
+  outoging.append(video);
+}
+function addVideoincoming(video , stream){
+  video.srcObject = stream;
+  video.addEventListener('loadedmetadata', () => {
+    video.play()
+  })
+  incoming.append(video);
 }
